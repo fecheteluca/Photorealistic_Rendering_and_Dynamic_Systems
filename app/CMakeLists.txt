@@ -4,8 +4,11 @@ add_executable(${EXECUTABLE_NAME} ${APP_SOURCES})
 
 target_link_libraries(
     ${EXECUTABLE_NAME}
-    PRIVATE "LibFoo"
-            "LibBar"
+    PRIVATE "LibRayTracer"
+            "LibRay"
+            "LibSphere"
+            "LibVector"
+            "LibSTB"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog

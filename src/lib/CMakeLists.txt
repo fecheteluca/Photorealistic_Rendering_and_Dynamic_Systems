@@ -1,0 +1,4 @@
+add_subdirectory(Vector)
+add_subdirectory(Sphere)
+add_subdirectory(Ray)
+add_subdirectory(STB)
