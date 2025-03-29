@@ -6,7 +6,10 @@ add_library("LibRay" STATIC ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
 target_include_directories("LibRay" PUBLIC ${LIBRARY_INCLUDES})
 target_link_libraries(
     "LibRay"
-    PRIVATE nlohmann_json::nlohmann_json
+    PRIVATE "LibVector"
+            "LibSphere"
+            "LibSTB" 
+            nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog
             cxxopts::cxxopts)

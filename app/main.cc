@@ -1,4 +1,3 @@
-#include <vector>
 #include "ray_tracer.h"
 
 int main() {

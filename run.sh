@@ -5,7 +5,7 @@ set -e
 # Define variables
 BUILD_DIR="build"
 APP_DIR="app"
-EXECUTABLE_NAME="main"  # Adjust if your executable has a different name
+EXECUTABLE_NAME="main"  
 
 # Create build directory if it doesn't exist
 echo "Creating build directory..."
