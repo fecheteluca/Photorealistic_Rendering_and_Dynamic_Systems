@@ -7,10 +7,6 @@ BUILD_DIR="build"
 APP_DIR="app"
 EXECUTABLE_NAME="main"  
 
-# Create build directory if it doesn't exist
-echo "Creating build directory..."
-mkdir -p "${BUILD_DIR}"
-
 # Change to the build directory
 cd "${BUILD_DIR}"
 

@@ -6,6 +6,7 @@ install:
 prepare:
 	rm -rf build
 	mkdir build
+	./run.sh
 
 conan_d:
 	rm -rf build
