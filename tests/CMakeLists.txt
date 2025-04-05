@@ -1,20 +1,20 @@
 include(Catch)
 
-add_executable("UnitTestRayTracer" "test_ray_tracer.cc")
-target_link_libraries("UnitTestRayTracer" PUBLIC "LibRayTracer")
-target_link_libraries("UnitTestRayTracer" PRIVATE Catch2::Catch2WithMain)
+add_executable("UnitTestRenderer" "test_renderer.cc")
+target_link_libraries("UnitTestRenderer" PUBLIC "LibRenderer")
+target_link_libraries("UnitTestRenderer" PRIVATE Catch2::Catch2WithMain)
 
 if(${ENABLE_WARNINGS})
     target_set_warnings(
         TARGET
-        "UnitTestRayTracer"
+        "UnitTestRenderer"
         ENABLE
         ${ENABLE_WARNINGS}
         AS_ERRORS
         ${ENABLE_WARNINGS_AS_ERRORS})
 endif()
 
-catch_discover_tests("UnitTestRayTracer")
+catch_discover_tests("UnitTestRenderer")
 
 if(ENABLE_COVERAGE)
     set(COVERAGE_MAIN "coverage")
@@ -27,7 +27,7 @@ if(ENABLE_COVERAGE)
         "${PROJECT_SOURCE_DIR}/build/*"
         "/usr/include/*")
     set(COVERAGE_EXTRA_FLAGS)
-    set(COVERAGE_DEPENDENCIES "UnitTestRayTracer")
+    set(COVERAGE_DEPENDENCIES "UnitTestRenderer")
 
     setup_target_for_coverage_gcovr_html(
         NAME

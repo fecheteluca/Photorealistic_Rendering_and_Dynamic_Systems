@@ -7,6 +7,15 @@
 class Vector {
     public:
         explicit Vector(double x = 0, double y = 0, double z = 0);
+
+        void set_x(double x);
+        void set_y(double y);
+        void set_z(double z);
+
+        double get_x();
+        double get_y();
+        double get_z();
+
         double norm2() const;
         double norm() const;
         void normalize();

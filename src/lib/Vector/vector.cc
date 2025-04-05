@@ -7,6 +7,30 @@ Vector::Vector(double x, double y, double z) {
     data[2] = z;
 }
 
+void Vector::set_x(double x) {
+    data[0] = x;
+}
+
+void Vector::set_y(double y) {
+    data[1] = y;
+}
+
+void Vector::set_z(double z) {
+    data[2] = z;
+}
+
+double Vector::get_x() {
+    return data[0];
+}
+
+double Vector::get_y() {
+    return data[1];
+}
+
+double Vector::get_z() {
+    return data[2];
+}
+
 double Vector::norm2() const {
     return data[0] * data[0] + data[1] * data[1] + data[2] * data[2];
 }
