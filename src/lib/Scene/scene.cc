@@ -1,8 +1,10 @@
 #include "scene.h"
 
 // Scene class definitions
-Scene::Scene(std::vector<Sphere> aux_l_sph) { 
+Scene::Scene(std::vector<Sphere> aux_l_sph, Vector aux_vec_light_source, double aux_light_intensity) { 
     l_sph = aux_l_sph;
+    vec_light_source = aux_vec_light_source;
+    light_intensity = aux_light_intensity;
 }
 
 void Scene::add_object(Sphere sph_extra) {
@@ -22,6 +24,26 @@ Intersection Scene::get_closest_hit(Ray ray) {
     }
 
     return closest_hit_intersection;
+}
+
+Vector Scene::get_shadow_intensity(Intersection intersection) {
+    double distance = (vec_light_source - intersection.vec_point).norm();
+    Vector omega    = vec_light_source - intersection.vec_point;
+    omega.normalize();
+
+    double first_factor = light_intensity / (4 * M_PI * pow(distance, 2));
+    Vector second_factor = (1 / M_PI) * intersection.vec_albedo;
+
+    double third_factor = 0;
+    Vector vec_offseted_point = intersection.vec_point + 0.001 * intersection.vec_normal;
+    Ray ray = Ray(vec_offseted_point, omega);   
+    Intersection src_pnt_intersection = get_closest_hit(ray);
+    if (distance <= src_pnt_intersection.distance) {
+        third_factor = 1;
+    }
+
+    double fourth_factor = dot(intersection.vec_normal, omega);
+    return first_factor * second_factor * third_factor * fourth_factor;
 }
 
 
@@ -78,5 +100,8 @@ Scene get_standard_scene() {
     Sphere sph_frontwall = Sphere(sph_frontwall_vec_center, sph_frontwall_radius, sph_frontwall_vec_albedo);
     l_sph_sc_standard.push_back(sph_frontwall);
 
-    return Scene(l_sph_sc_standard);
+    Vector vec_light_source = Vector(-10, 20, 40);
+    double light_intensity = 40000;
+
+    return Scene(l_sph_sc_standard, vec_light_source, light_intensity);
 }
