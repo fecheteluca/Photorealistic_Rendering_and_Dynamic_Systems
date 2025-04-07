@@ -15,7 +15,10 @@
 
 class Renderer {
     public:
-        explicit Renderer(Scene aux_scene = Scene(), Camera aux_camera = Camera());
+        explicit Renderer(
+            Scene aux_scene = Scene(), 
+            Camera aux_camera = Camera()
+        );
 
         void set_image_pixel_color(int i, int j, Vector vec_albedo);
         Vector get_image_pixel_color(int i, int j);
@@ -24,7 +27,9 @@ class Renderer {
 
         void render_default_image();
         void render_ray_scene_intersection();
-        void render_shading_and_shadows();
+        void render_shadows();
+        void render_reflections_shadows();
+        void render_refractions_reflections_shadows();
 
     private:
         Scene scene;

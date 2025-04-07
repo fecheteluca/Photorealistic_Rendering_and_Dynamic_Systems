@@ -5,7 +5,10 @@
 
 class Ray {
     public:
-        explicit Ray(Vector aux_vec_origin = Vector(), Vector aux_vec_unit_direction = Vector());
+        explicit Ray(
+            Vector aux_vec_origin = Vector(), 
+            Vector aux_vec_unit_direction = Vector()
+        );
 
         Vector get_origin();
         Vector get_unit_direction();

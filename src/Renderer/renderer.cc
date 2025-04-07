@@ -7,7 +7,10 @@
 #include "stb_image.h"
 
 // Renderer class definitions
-Renderer::Renderer(Scene aux_scene, Camera aux_camera) {
+Renderer::Renderer(
+    Scene aux_scene, 
+    Camera aux_camera
+) {
     scene = aux_scene;
     camera = aux_camera;
     W = camera.get_width();
@@ -56,13 +59,43 @@ void Renderer::render_ray_scene_intersection() {
     display_image();
 }
 
-void Renderer::render_shading_and_shadows() {
+void Renderer::render_shadows() {
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
             Ray ray = camera.get_ray(i, j);
             Intersection intersection = scene.get_closest_hit(ray);
             if (intersection.flag) {
                 Vector vec_albedo_pixel = scene.get_shadow_intensity(intersection);
+                set_image_pixel_color(i, j, vec_albedo_pixel);
+            }
+        }
+    }
+    display_image();
+}
+
+void Renderer::render_reflections_shadows() {
+    int intensity_depth = 10;
+    for (int i = 0; i < H; i++) {
+        for (int j = 0; j < W; j++) {
+            Ray ray = camera.get_ray(i, j);
+            Intersection intersection = scene.get_closest_hit(ray);
+            if (intersection.flag) {
+                Vector vec_albedo_pixel = scene.get_reflected_intensity(ray, intensity_depth);
+                set_image_pixel_color(i, j, vec_albedo_pixel);
+            }
+        }
+    }
+    display_image();
+}
+
+void Renderer::render_refractions_reflections_shadows() {
+    int intensity_depth = 10;
+    for (int i = 0; i < H; i++) {
+        for (int j = 0; j < W; j++) {
+            Ray ray = camera.get_ray(i, j);
+            Intersection intersection = scene.get_closest_hit(ray);
+            if (intersection.flag) {
+                Vector vec_albedo_pixel = scene.get_refracted_intensity(ray, intensity_depth);
                 set_image_pixel_color(i, j, vec_albedo_pixel);
             }
         }

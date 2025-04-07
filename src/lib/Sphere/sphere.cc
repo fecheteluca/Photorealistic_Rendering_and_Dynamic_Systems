@@ -1,10 +1,20 @@
 #include "sphere.h"
 
 // Sphere class definitions
-Sphere::Sphere(Vector aux_vec_center, double aux_radius, Vector aux_vec_albedo) {
+Sphere::Sphere(
+    Vector aux_vec_center, 
+    double aux_radius, 
+    Vector aux_vec_albedo, 
+    bool aux_mirror,
+    bool aux_transparent,
+    double aux_refraction_index
+) {
     vec_center = aux_vec_center;
     radius = aux_radius;
     vec_albedo = aux_vec_albedo;
+    mirror = aux_mirror;
+    transparent = aux_transparent;
+    refraction_index = aux_refraction_index;
 }
 
 Vector Sphere::get_center() {
@@ -17,6 +27,18 @@ double Sphere::get_radius() {
 
 Vector Sphere::get_color() {
     return vec_albedo;
+}
+
+bool Sphere::has_mirror_surface() {
+    return mirror;
+}
+
+bool Sphere::has_transparent_surface() {
+    return transparent;
+}
+
+double Sphere::get_refraction_index() {
+    return refraction_index;
 }
 
 Intersection Sphere::intersected_by(Ray ray) {

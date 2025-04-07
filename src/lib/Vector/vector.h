@@ -6,7 +6,11 @@
 
 class Vector {
     public:
-        explicit Vector(double x = 0, double y = 0, double z = 0);
+        explicit Vector(
+            double x = 0, 
+            double y = 0, 
+            double z = 0
+        );
 
         void set_x(double x);
         void set_y(double y);

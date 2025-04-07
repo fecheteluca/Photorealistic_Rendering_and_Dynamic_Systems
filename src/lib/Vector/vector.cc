@@ -1,7 +1,11 @@
 #include "vector.h"
 
 // Vector class definitions
-Vector::Vector(double x, double y, double z) {
+Vector::Vector(
+    double x, 
+    double y, 
+    double z
+) {
     data[0] = x;
     data[1] = y;
     data[2] = z;

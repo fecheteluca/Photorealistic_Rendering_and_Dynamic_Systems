@@ -1,6 +1,11 @@
 #include "camera.h"
 
-Camera::Camera(Vector aux_vec_center, double aux_alpha, int aux_W, int aux_H) {
+Camera::Camera(
+    Vector aux_vec_center, 
+    double aux_alpha, 
+    int aux_W, 
+    int aux_H
+) {
     vec_center = aux_vec_center;
     alpha = aux_alpha;
     W = aux_W;

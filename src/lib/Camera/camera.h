@@ -11,7 +11,12 @@
 
 class Camera {
     public:
-        explicit Camera(Vector aux_vec_center = Vector(), double aux_alpha = 0, int aux_W = 0, int aux_H = 0);
+        explicit Camera(
+            Vector aux_vec_center = Vector(), 
+            double aux_alpha = 0, 
+            int aux_W = 0, 
+            int aux_H = 0
+        );
         
         int get_width();
         int get_height();
