@@ -2,12 +2,15 @@
 #define SCENE_H
 
 #include <iostream>
+#include <cstdlib>
 #include <climits>
 #include <vector>
 
 #include "vector.h"
 #include "ray.h"
 #include "sphere.h"
+
+#define EPS 0.001
 
 class Scene {
     public:
@@ -24,9 +27,7 @@ class Scene {
 
         Vector get_shadow_intensity(Intersection intersection);
 
-        Vector get_reflected_intensity(Ray ray , int ray_depth);
-
-        Vector get_refracted_intensity(Ray ray, int ray_depth);
+        Vector get_intensity(Ray ray, int ray_depth);
         
     private:
         std::vector<Sphere> l_sph;
@@ -34,9 +35,5 @@ class Scene {
         double light_intensity;
         double refraction_index;
     };
-
-    Scene get_standard_scene();
-    Scene get_intermediate_scene_reflection();
-    Scene get_intermediate_scene_refraction_reflection();
 
 #endif // SCENE_H

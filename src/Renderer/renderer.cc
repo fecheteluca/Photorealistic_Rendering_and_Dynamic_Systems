@@ -9,7 +9,8 @@
 // Renderer class definitions
 Renderer::Renderer(
     Scene aux_scene, 
-    Camera aux_camera
+    Camera aux_camera,
+    int aux_nr_rays
 ) {
     scene = aux_scene;
     camera = aux_camera;
@@ -19,6 +20,8 @@ Renderer::Renderer(
     // Create an image buffer with all pixels initialized to black
     image.resize(W * H * 3, 0);
     std::fill(image.begin(), image.end(), 0);
+
+    nr_rays = aux_nr_rays;
 }
 
 void Renderer::set_image_pixel_color(int i, int j, Vector vec_albedo) {
@@ -36,68 +39,29 @@ void Renderer::display_image() {
     stbi_write_png("../../images/image.png", W, H, 3, image.data(), 0);
 }
 
-// Render speific methods for displaying images
-void Renderer::render_default_image() {
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < W; j++) {
-            set_image_pixel_color(i, j, Vector(0, 255, 0));
-        }
-    }
-    display_image();
-}
+#pragma omp declare reduction(+: Vector : \
+    omp_out=omp_out+omp_in) \
+    initializer(omp_priv=Vector(0.0,0.0,0.0))
 
-void Renderer::render_ray_scene_intersection() {
+void Renderer::render() {
+    int intensity_depth = INTENSITY_DEPTH;
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
             Ray ray = camera.get_ray(i, j);
             Intersection intersection = scene.get_closest_hit(ray);
             if (intersection.flag) {
-                set_image_pixel_color(i, j, intersection.vec_albedo);
-            }
-        }
-    }
-    display_image();
-}
+                Vector vec_albedo_average = Vector();
 
-void Renderer::render_shadows() {
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < W; j++) {
-            Ray ray = camera.get_ray(i, j);
-            Intersection intersection = scene.get_closest_hit(ray);
-            if (intersection.flag) {
-                Vector vec_albedo_pixel = scene.get_shadow_intensity(intersection);
-                set_image_pixel_color(i, j, vec_albedo_pixel);
+                #pragma omp parallel for reduction(+:vec_albedo_average)
+                for (int k = 0; k < nr_rays; k++) { 
+                    Vector vec_albedo = scene.get_intensity(ray, intensity_depth);
+                    vec_albedo_average = vec_albedo_average + vec_albedo;
+                }
+                
+                vec_albedo_average = (1.0 / (nr_rays * 1.0)) * vec_albedo_average;
+                set_image_pixel_color(i, j, vec_albedo_average);
             }
-        }
-    }
-    display_image();
-}
-
-void Renderer::render_reflections_shadows() {
-    int intensity_depth = 10;
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < W; j++) {
-            Ray ray = camera.get_ray(i, j);
-            Intersection intersection = scene.get_closest_hit(ray);
-            if (intersection.flag) {
-                Vector vec_albedo_pixel = scene.get_reflected_intensity(ray, intensity_depth);
-                set_image_pixel_color(i, j, vec_albedo_pixel);
-            }
-        }
-    }
-    display_image();
-}
-
-void Renderer::render_refractions_reflections_shadows() {
-    int intensity_depth = 10;
-    for (int i = 0; i < H; i++) {
-        for (int j = 0; j < W; j++) {
-            Ray ray = camera.get_ray(i, j);
-            Intersection intersection = scene.get_closest_hit(ray);
-            if (intersection.flag) {
-                Vector vec_albedo_pixel = scene.get_refracted_intensity(ray, intensity_depth);
-                set_image_pixel_color(i, j, vec_albedo_pixel);
-            }
+            
         }
     }
     display_image();

@@ -32,7 +32,8 @@ class Sphere {
             Vector aux_vec_albedo = Vector(), 
             bool aux_mirror = false, 
             bool aux_transparent = false,
-            double aux_refraction_index = 1.0
+            double aux_refraction_index = 1.0,
+            bool aux_invert_normals = false
         );
 
         Vector get_center();
@@ -51,6 +52,7 @@ class Sphere {
         bool mirror;    
         bool transparent;
         double refraction_index;
+        bool invert_normals;
     };
 
 #endif // SPHERE_H

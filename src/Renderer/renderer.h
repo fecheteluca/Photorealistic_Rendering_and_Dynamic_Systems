@@ -12,12 +12,14 @@
 #include "scene.h"
 #include "camera.h"
 
+#define INTENSITY_DEPTH 8
 
 class Renderer {
     public:
         explicit Renderer(
             Scene aux_scene = Scene(), 
-            Camera aux_camera = Camera()
+            Camera aux_camera = Camera(),
+            int aux_nr_rays = 1
         );
 
         void set_image_pixel_color(int i, int j, Vector vec_albedo);
@@ -25,17 +27,14 @@ class Renderer {
 
         void display_image();
 
-        void render_default_image();
-        void render_ray_scene_intersection();
-        void render_shadows();
-        void render_reflections_shadows();
-        void render_refractions_reflections_shadows();
+        void render();
 
     private:
         Scene scene;
         Camera camera;
         int W;
         int H;
+        int nr_rays;
 
         std::vector<unsigned char> image; // The image that will be rendered
     };

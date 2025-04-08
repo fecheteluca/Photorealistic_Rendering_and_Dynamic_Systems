@@ -7,7 +7,8 @@ Sphere::Sphere(
     Vector aux_vec_albedo, 
     bool aux_mirror,
     bool aux_transparent,
-    double aux_refraction_index
+    double aux_refraction_index,
+    bool aux_invert_normals
 ) {
     vec_center = aux_vec_center;
     radius = aux_radius;
@@ -15,6 +16,7 @@ Sphere::Sphere(
     mirror = aux_mirror;
     transparent = aux_transparent;
     refraction_index = aux_refraction_index;
+    invert_normals = aux_invert_normals;
 }
 
 Vector Sphere::get_center() {
@@ -60,7 +62,7 @@ Intersection Sphere::intersected_by(Ray ray) {
             intersection.flag = true;
             intersection.distance = first_intersection;
             intersection.vec_point = vec_origin + first_intersection * vec_unit_direction;
-            intersection.vec_normal = intersection.vec_point - vec_center;
+            intersection.vec_normal = !invert_normals ? intersection.vec_point - vec_center : vec_center - intersection.vec_point;
             intersection.vec_normal.normalize();
             intersection.vec_albedo = vec_albedo;
         }
@@ -68,7 +70,7 @@ Intersection Sphere::intersected_by(Ray ray) {
             intersection.flag = true;
             intersection.distance = second_intersection;
             intersection.vec_point = vec_origin + second_intersection * vec_unit_direction;
-            intersection.vec_normal = intersection.vec_point - vec_center;
+            intersection.vec_normal = !invert_normals ? intersection.vec_point - vec_center : vec_center - intersection.vec_point;
             intersection.vec_normal.normalize();
             intersection.vec_albedo = vec_albedo;
         }
