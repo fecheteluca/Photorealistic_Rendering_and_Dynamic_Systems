@@ -2,6 +2,8 @@ set(APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main.cc")
 
 add_executable(${EXECUTABLE_NAME} ${APP_SOURCES})
 
+find_package(OpenMP REQUIRED)
+
 target_link_libraries(
     ${EXECUTABLE_NAME}
     PRIVATE "LibRenderer"
@@ -14,7 +16,9 @@ target_link_libraries(
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog
-            cxxopts::cxxopts)
+            cxxopts::cxxopts
+            OpenMP::OpenMP_CXX
+            )
 
 if(${ENABLE_WARNINGS})
     target_set_warnings(

@@ -43,7 +43,7 @@ class Sphere {
         bool has_transparent_surface();
         double get_refraction_index();
 
-        Intersection intersected_by(Ray ray);
+        Intersection intersected_by(Ray& ray);
 
     private:
         Vector vec_center;

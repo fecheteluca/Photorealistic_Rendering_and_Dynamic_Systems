@@ -5,6 +5,8 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <chrono>
+#include <atomic>
 
 #include "vector.h"
 #include "ray.h"
@@ -22,8 +24,8 @@ class Renderer {
             int aux_nr_rays = 1
         );
 
-        void set_image_pixel_color(int i, int j, Vector vec_albedo);
-        Vector get_image_pixel_color(int i, int j);
+        void set_image_pixel_color(const int& i, const int& j, Vector& vec_albedo);
+        Vector get_image_pixel_color(const int& i, const int& j);
 
         void display_image();
 

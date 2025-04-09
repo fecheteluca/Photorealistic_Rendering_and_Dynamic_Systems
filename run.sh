@@ -12,11 +12,11 @@ cd "${BUILD_DIR}"
 
 # Configure the project 
 echo "Configuring project with CMake..."
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake  -DCMAKE_BUILD_TYPE=Release .. 
 
 # Build the project
 echo "Building project..."
-cmake --build .
+cmake --build . -j 16
 
 cd "${APP_DIR}"
 

@@ -15,19 +15,25 @@ class Camera {
             Vector aux_vec_center = Vector(), 
             double aux_alpha = 0, 
             int aux_W = 0, 
-            int aux_H = 0
+            int aux_H = 0,
+            double aux_stdev = 1,
+            double aux_spread = 0.5
         );
         
         int get_width();
         int get_height();
 
-        Ray get_ray(int i, int j);
+        void boxMuller(double stdev , double &x , double &y);
+
+        Ray get_ray(const int& i, const int& j);
 
     private:
         Vector vec_center; // The origin of the camera
         double alpha; // The visual angle covering the W pixels in width
         int W; // The width of the rendered image
         int H; // The height of the rendered image
+        double stdev;
+        double spread;
     };
 
 #endif // CAMERA_H

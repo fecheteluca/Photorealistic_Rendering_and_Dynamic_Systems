@@ -3,14 +3,19 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <random>
 #include <climits>
 #include <vector>
+#include <cmath>
 
 #include "vector.h"
 #include "ray.h"
 #include "sphere.h"
 
 #define EPS 0.001
+
+static std::default_random_engine engine (15) ; 
+static std::uniform_real_distribution<double> uniform (0, 1) ;
 
 class Scene {
     public:
@@ -21,13 +26,14 @@ class Scene {
             double aux_refraction_index = 1.0
         );
 
-        void add_object(Sphere sph_extra);
+        void add_object(const Sphere& sph_extra);
 
-        Intersection get_closest_hit(Ray ray);
+        Intersection get_closest_hit(Ray& ray);
+        
+        Vector get_shadow_intensity(const Intersection& intersection);
 
-        Vector get_shadow_intensity(Intersection intersection);
-
-        Vector get_intensity(Ray ray, int ray_depth);
+        Ray random_cos(const Intersection& intersection);
+        Vector get_intensity(Ray& ray, const int& ray_depth);
         
     private:
         std::vector<Sphere> l_sph;

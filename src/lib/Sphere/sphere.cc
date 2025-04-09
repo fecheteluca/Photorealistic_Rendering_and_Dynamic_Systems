@@ -43,7 +43,7 @@ double Sphere::get_refraction_index() {
     return refraction_index;
 }
 
-Intersection Sphere::intersected_by(Ray ray) {
+Intersection Sphere::intersected_by(Ray& ray) {
     Intersection intersection = Intersection();
     
     Vector vec_origin = ray.get_origin();

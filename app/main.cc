@@ -140,7 +140,7 @@ int main() {
     l_sph_sc_intermediate.push_back(sph_frontwall);
 
     Vector vec_light_source = Vector(-10, 20, 40);
-    double light_intensity = 4e04;
+    double light_intensity = 1e05;
     double scene_refraction_index = 1.0;
 
     Scene scene = Scene(
@@ -150,7 +150,7 @@ int main() {
         scene_refraction_index
     );
 
-    Camera camera = Camera(Vector(0, 0, 55), 60, 1024, 1024);
+    Camera camera = Camera(Vector(0, 0, 55), 60, 512, 512, 1, 0.0);
 
     Renderer renderer = Renderer(scene, camera, 1000);
     renderer.render();

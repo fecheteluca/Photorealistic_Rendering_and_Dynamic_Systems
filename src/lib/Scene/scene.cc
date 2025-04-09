@@ -13,11 +13,11 @@ Scene::Scene(
     refraction_index = aux_refraction_index;
 }
 
-void Scene::add_object(Sphere sph_extra) {
+void Scene::add_object(const Sphere& sph_extra) {
     l_sph.push_back(sph_extra);
 }
 
-Intersection Scene::get_closest_hit(Ray ray) {
+Intersection Scene::get_closest_hit(Ray& ray) {
     double closest_hit_distance = INT_MAX * 1.0;
     Intersection closest_hit_intersection = Intersection();
     
@@ -33,7 +33,7 @@ Intersection Scene::get_closest_hit(Ray ray) {
     return closest_hit_intersection;
 }
 
-Vector Scene::get_shadow_intensity(Intersection intersection) {
+Vector Scene::get_shadow_intensity(const Intersection& intersection) {
     double distance = (vec_light_source - intersection.vec_point).norm();
     Vector omega    = vec_light_source - intersection.vec_point;
     omega.normalize();
@@ -51,9 +51,46 @@ Vector Scene::get_shadow_intensity(Intersection intersection) {
 
     double fourth_factor = dot(intersection.vec_normal, omega);
     return first_factor * second_factor * third_factor * fourth_factor;
+}  
+
+Ray Scene::random_cos(const Intersection& intersection) {
+    double r_1 = uniform(engine);
+    double r_2 = uniform(engine);
+
+    double x = cos(2 * M_PI * r_1) * sqrt(1 - r_2);
+    double y = sin(2 * M_PI * r_1) * sqrt(1 - r_2);;
+    double z = sqrt(r_2);
+
+    Vector vec_normal = intersection.vec_normal;
+    double x_vec_normal = vec_normal.get_x();
+    double y_vec_normal = vec_normal.get_y();
+    double z_vec_normal = vec_normal.get_z();
+
+    double smallest_comp = std::min(
+        fabs(x_vec_normal),
+        std::min(fabs(y_vec_normal), fabs(z_vec_normal))
+    );    
+
+    Vector T_1 = Vector();
+    if (smallest_comp == fabs(x_vec_normal)) {
+        T_1 = Vector(0.0, z_vec_normal, -y_vec_normal);
+    }
+    else if (smallest_comp == fabs(y_vec_normal)) {
+        T_1 = Vector(-z_vec_normal, 0.0, x_vec_normal);
+    }
+    else if (smallest_comp == fabs(z_vec_normal)) {
+        T_1 = Vector(y_vec_normal, -x_vec_normal, 0.0);
+    }
+    T_1.normalize();
+
+    Vector T_2 = cross(vec_normal, T_1);
+
+    Vector vec_random_origin = intersection.vec_point + EPS * vec_normal;
+    Vector vec_random_unit_direction = x * T_1 + y * T_2 + z * vec_normal;
+    return Ray(vec_random_origin, vec_random_unit_direction);
 }
 
-Vector Scene::get_intensity(Ray ray , int ray_depth) {
+Vector Scene::get_intensity(Ray& ray , const int& ray_depth) {
     if (ray_depth < 0) {
         return Vector(0.0, 0.0, 0.0);
     }
@@ -124,13 +161,15 @@ Vector Scene::get_intensity(Ray ray , int ray_depth) {
                 double k_0 = pow((eta_1 - eta_2), 2) / pow((eta_1 + eta_2), 2);
                 double R   = k_0 + (1 - k_0) * pow((1 - fabs(cosine_unit_normal)), 5);
 
-                double u = ((double)rand() / (double)RAND_MAX);
+                double u = uniform(engine);
                 Ray ray_returned = u < R ? ray_reflected : ray_refracted;
 
                 return get_intensity(ray_returned, ray_depth - 1);
             }
             else {
-                return get_shadow_intensity(first_hit_intersection);
+                Vector Lo = get_shadow_intensity(first_hit_intersection);
+                Ray random_ray = random_cos(first_hit_intersection);
+                return Lo + first_hit_intersection.vec_albedo * get_intensity(random_ray, ray_depth - 1);
             }
         }
     }
