@@ -1,13 +1,14 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#define _CRT_SECURE_NO_WARNINGS 1
 #include <vector>
 #include <cmath>
+#include <omp.h>
 #include "vector.h"
 #include "ray.h"
 #include "sphere.h"
 #include "scene.h"
+
 
 class Camera {
     public:

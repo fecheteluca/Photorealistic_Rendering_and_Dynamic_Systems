@@ -1,5 +1,11 @@
 #include "camera.h"
 
+namespace {
+    thread_local std::default_random_engine camera_engine;
+    thread_local std::uniform_real_distribution<double> camera_dist(0.0, 1.0);
+    thread_local bool camera_seeded = false;
+}
+
 Camera::Camera(
     Vector aux_vec_center, 
     double aux_alpha, 
@@ -7,7 +13,7 @@ Camera::Camera(
     int aux_H,
     double aux_stdev,
     double aux_spread
-) {
+) { 
     vec_center = aux_vec_center;
     alpha = aux_alpha;
     W = aux_W;
@@ -25,10 +31,20 @@ int Camera::get_height() {
 }
 
 void Camera::boxMuller(double stdev , double &x , double &y) {
-    double r1 = uniform ( engine ) ;
-    double r2 = uniform ( engine ) ;
-    x = sqrt((-2) * log ( r1 ) ) *cos ( 2 * M_PI*r2 ) *stdev ;
-    y = sqrt((-2) * log ( r1 ) ) *sin ( 2 * M_PI*r2 ) *stdev ;
+    if (!camera_seeded) {
+        #ifdef _OPENMP
+            int thread_id = omp_get_thread_num();
+            camera_engine.seed(15 + 1337 * thread_id);
+        #else
+            camera_engine.seed(15);
+        #endif
+            camera_seeded = true;
+    }
+    
+    double r1 = camera_dist(camera_engine);
+    double r2 = camera_dist(camera_engine);
+    x = sqrt((-2) * log (r1)) * cos (2 * M_PI * r2) * stdev;
+    y = sqrt((-2) * log (r1)) * sin (2 * M_PI * r2) * stdev;
 }
 
 Ray Camera::get_ray(const int& i, const int& j) {
@@ -41,8 +57,8 @@ Ray Camera::get_ray(const int& i, const int& j) {
     dy *= spread;
 
     // Computation of the location of pixel (i, j)
-    double pixel_x = vec_center.get_x() + (j + 0.5 + dx) - (W / 2.0);
-    double pixel_y = vec_center.get_y() + ((H - i - 1) + 0.5 + dy) - (H / 2.0);
+    double pixel_x = vec_center.get_x() + (j + dy) + 0.5 - (W / 2.0);
+    double pixel_y = vec_center.get_y() + (H - (i + dx) - 1) + 0.5 - (H / 2.0);
     double pixel_z = vec_center.get_z() - (W / (2 * std::tan(alpha_rad / 2)));
     Vector vec_pixel_pos = Vector(pixel_x, pixel_y, pixel_z);
 

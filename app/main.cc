@@ -150,9 +150,9 @@ int main() {
         scene_refraction_index
     );
 
-    Camera camera = Camera(Vector(0, 0, 55), 60, 512, 512, 1, 0.0);
+    Camera camera = Camera(Vector(0, 0, 55), 60, 1024, 1024, 1, 0.3);
 
-    Renderer renderer = Renderer(scene, camera, 1000);
+    Renderer renderer = Renderer(scene, camera, 1000, 8);
     renderer.render();
 
     return 0;

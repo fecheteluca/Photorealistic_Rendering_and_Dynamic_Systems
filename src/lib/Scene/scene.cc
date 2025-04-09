@@ -1,5 +1,11 @@
 #include "scene.h"
 
+namespace {
+    thread_local std::default_random_engine scene_engine;
+    thread_local std::uniform_real_distribution<double> scene_dist(0.0, 1.0);
+    thread_local bool scene_seeded = false;
+}
+
 // Scene class definitions
 Scene::Scene(
     std::vector<Sphere> aux_l_sph, 
@@ -21,7 +27,7 @@ Intersection Scene::get_closest_hit(Ray& ray) {
     double closest_hit_distance = INT_MAX * 1.0;
     Intersection closest_hit_intersection = Intersection();
     
-    for (int idx = 0; idx <= l_sph.size(); idx++) {
+    for (int idx = 0; idx < l_sph.size(); idx++) {
         Intersection intersection = l_sph[idx].intersected_by(ray);
         if (intersection.flag && intersection.distance < closest_hit_distance) {
             closest_hit_distance = intersection.distance;
@@ -54,8 +60,18 @@ Vector Scene::get_shadow_intensity(const Intersection& intersection) {
 }  
 
 Ray Scene::random_cos(const Intersection& intersection) {
-    double r_1 = uniform(engine);
-    double r_2 = uniform(engine);
+    if (!scene_seeded) {
+        #ifdef _OPENMP
+            int thread_id = omp_get_thread_num();
+            scene_engine.seed(15 + 1337 * thread_id);
+        #else
+            scene_engine.seed(15);
+        #endif
+            scene_seeded = true;
+    }
+    
+    double r_1 = scene_dist(scene_engine);
+    double r_2 = scene_dist(scene_engine);
 
     double x = cos(2 * M_PI * r_1) * sqrt(1 - r_2);
     double y = sin(2 * M_PI * r_1) * sqrt(1 - r_2);;
@@ -161,7 +177,7 @@ Vector Scene::get_intensity(Ray& ray , const int& ray_depth) {
                 double k_0 = pow((eta_1 - eta_2), 2) / pow((eta_1 + eta_2), 2);
                 double R   = k_0 + (1 - k_0) * pow((1 - fabs(cosine_unit_normal)), 5);
 
-                double u = uniform(engine);
+                double u = scene_dist(scene_engine);
                 Ray ray_returned = u < R ? ray_reflected : ray_refracted;
 
                 return get_intensity(ray_returned, ray_depth - 1);
@@ -173,4 +189,6 @@ Vector Scene::get_intensity(Ray& ray , const int& ray_depth) {
             }
         }
     }
+
+    return Vector();
 }

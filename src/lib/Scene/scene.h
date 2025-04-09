@@ -7,15 +7,13 @@
 #include <climits>
 #include <vector>
 #include <cmath>
+#include <omp.h>
 
 #include "vector.h"
 #include "ray.h"
 #include "sphere.h"
 
 #define EPS 0.001
-
-static std::default_random_engine engine (15) ; 
-static std::uniform_real_distribution<double> uniform (0, 1) ;
 
 class Scene {
     public:

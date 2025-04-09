@@ -10,7 +10,8 @@
 Renderer::Renderer(
     Scene aux_scene, 
     Camera aux_camera,
-    int aux_nr_rays
+    int aux_nr_rays,
+    int aux_intensity_depth
 ) {
     scene = aux_scene;
     camera = aux_camera;
@@ -22,6 +23,7 @@ Renderer::Renderer(
     std::fill(image.begin(), image.end(), 0);
 
     nr_rays = aux_nr_rays;
+    intensity_depth = aux_intensity_depth;
 }
 
 void Renderer::set_image_pixel_color(const int& i, const int& j, Vector& vec_albedo) {
@@ -45,7 +47,6 @@ void Renderer::render() {
     static std::atomic<int> pixel_count{0};
     pixel_count = 0; 
 
-    int intensity_depth = INTENSITY_DEPTH;
     auto start_time = std::chrono::high_resolution_clock::now();
 
     #pragma omp parallel for schedule(dynamic, 1)
@@ -88,11 +89,9 @@ void Renderer::render() {
         }
     }
 
-    std::cout << "\rProgress: 100%\n" << std::flush;
-
     display_image();
 
     auto end_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end_time - start_time;
-    std::cout << "Render loop took " << elapsed.count() << " seconds.\n";
+    std::cout << std::endl << "Render loop took " << elapsed.count() << " seconds.\n";
 }
