@@ -25,9 +25,9 @@ class Renderer {
         void set_image_pixel_color(const int& i, const int& j, Vector& vec_albedo);
         Vector get_image_pixel_color(const int& i, const int& j);
 
-        void display_image();
+        void display_image(const std::string& filename);
 
-        void render();
+        void render(const std::string& filename);
 
     private:
         Scene scene;

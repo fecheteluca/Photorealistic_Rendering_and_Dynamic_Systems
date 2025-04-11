@@ -58,6 +58,10 @@ double& Vector::operator[](int i) {
     return data[i];
 }
 
+bool Vector::operator==(const Vector& a) {
+    return (data[0] == a[0]) && (data[1] == a[1]) && (data[2] == a[2]);
+}
+
 // Non-member operator overloads for Vector
 Vector operator+(const Vector& a, const Vector& b) {
     return Vector(a[0] + b[0], a[1] + b[1], a[2] + b[2]);

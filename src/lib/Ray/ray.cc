@@ -16,3 +16,7 @@ Vector Ray::get_origin() {
 Vector Ray::get_unit_direction() {
     return vec_unit_direction;
 }
+
+bool Ray::operator==(const Ray& ray) {
+    return (vec_origin == ray.vec_origin) && (vec_unit_direction == ray.vec_unit_direction);
+}

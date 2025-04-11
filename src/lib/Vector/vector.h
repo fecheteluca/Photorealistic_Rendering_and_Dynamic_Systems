@@ -26,6 +26,7 @@ class Vector {
     
         double operator[](int i) const;
         double& operator[](int i);
+        bool operator==(const Vector& a);
     
     private:
         double data[3];

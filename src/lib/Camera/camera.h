@@ -18,11 +18,15 @@ class Camera {
             int aux_W = 0, 
             int aux_H = 0,
             double aux_stdev = 1,
-            double aux_spread = 0.5
+            double aux_spread = 0.5,
+            double aux_focal_dist  = 40.0,
+            double aux_aperture = 0.0
         );
         
         int get_width();
         int get_height();
+
+        double get_random_number();
 
         void boxMuller(double stdev , double &x , double &y);
 
@@ -35,6 +39,8 @@ class Camera {
         int H; // The height of the rendered image
         double stdev;
         double spread;
+        double focal_dist;
+        double aperture;
     };
 
 #endif // CAMERA_H

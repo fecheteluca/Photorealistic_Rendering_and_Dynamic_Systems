@@ -7,6 +7,7 @@ Sphere::Sphere(
     Vector aux_vec_albedo, 
     bool aux_mirror,
     bool aux_transparent,
+    bool aux_light_source,
     double aux_refraction_index,
     bool aux_invert_normals
 ) {
@@ -15,6 +16,7 @@ Sphere::Sphere(
     vec_albedo = aux_vec_albedo;
     mirror = aux_mirror;
     transparent = aux_transparent;
+    light_source = aux_light_source;
     refraction_index = aux_refraction_index;
     invert_normals = aux_invert_normals;
 }
@@ -37,6 +39,10 @@ bool Sphere::has_mirror_surface() {
 
 bool Sphere::has_transparent_surface() {
     return transparent;
+}
+
+bool Sphere::is_light_source() {
+    return light_source;
 }
 
 double Sphere::get_refraction_index() {

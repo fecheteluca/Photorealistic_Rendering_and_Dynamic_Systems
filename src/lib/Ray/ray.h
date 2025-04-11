@@ -13,6 +13,8 @@ class Ray {
         Vector get_origin();
         Vector get_unit_direction();
 
+        bool operator==(const Ray& ray);
+
     private:
         Vector vec_origin;
         Vector vec_unit_direction;

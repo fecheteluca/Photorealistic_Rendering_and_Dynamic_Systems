@@ -32,6 +32,7 @@ class Sphere {
             Vector aux_vec_albedo = Vector(), 
             bool aux_mirror = false, 
             bool aux_transparent = false,
+            bool aux_light_source = false,
             double aux_refraction_index = 1.0,
             bool aux_invert_normals = false
         );
@@ -41,6 +42,7 @@ class Sphere {
         Vector get_color();
         bool has_mirror_surface();
         bool has_transparent_surface();
+        bool is_light_source();
         double get_refraction_index();
 
         Intersection intersected_by(Ray& ray);
@@ -51,6 +53,7 @@ class Sphere {
         Vector vec_albedo;
         bool mirror;    
         bool transparent;
+        bool light_source;
         double refraction_index;
         bool invert_normals;
     };
