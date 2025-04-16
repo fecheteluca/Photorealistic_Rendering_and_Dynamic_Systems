@@ -1,3 +1,7 @@
+## Ray Tracer (CSC_3S006_EP - Computer Graphics Project 1) - Luca-Andrei Fechete
+
+This is the Ray Tracer project for the CSC_3S006_EP - Computer Graphics course taken at Ecole Polytechnique, Paris.
+
 ## Software Requirements
 
 - CMake 3.21+
