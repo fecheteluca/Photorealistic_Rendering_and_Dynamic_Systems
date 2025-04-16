@@ -194,12 +194,12 @@ int main() {
 
     Vector vec_camera_center = Vector(0, 0, 55);
     double camera_angle = 60;
-    int camera_width = 512;
-    int camera_height = 512;
+    int camera_width = 1024;
+    int camera_height = 1024;
     double camera_stdev = 1.0;
     double camera_spread = 0.5;
     double camera_focal_dist = 55;
-    double camera_aperture = 1.0;
+    double camera_aperture = 0.0;
     Camera camera = Camera(
         vec_camera_center, 
         camera_angle, 
@@ -211,7 +211,7 @@ int main() {
         camera_aperture
     );
 
-    int rays_per_pixel = 500;
+    int rays_per_pixel = 1000;
     int intensity_depth = 8;
     Renderer renderer = Renderer(
         scene, 
@@ -219,7 +219,7 @@ int main() {
         rays_per_pixel, 
         intensity_depth
     );
-    renderer.render("../../images/image.png");
+    renderer.render("../../images/image_2_td2.png");
 
     return 0;
 }
