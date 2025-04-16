@@ -173,7 +173,7 @@ int main() {
         sph_light_source_invert_normals
     );
 
-    bool light_source_sphere = true;
+    bool light_source_sphere = false;
 
     if (light_source_sphere) {
         l_sph.push_back(sph_light_source);
@@ -197,9 +197,9 @@ int main() {
     int camera_width = 512;
     int camera_height = 512;
     double camera_stdev = 1.0;
-    double camera_spread = 0.0;
+    double camera_spread = 0.5;
     double camera_focal_dist = 55;
-    double camera_aperture = 0.0;
+    double camera_aperture = 1.0;
     Camera camera = Camera(
         vec_camera_center, 
         camera_angle, 
@@ -211,7 +211,7 @@ int main() {
         camera_aperture
     );
 
-    int rays_per_pixel = 5000;
+    int rays_per_pixel = 500;
     int intensity_depth = 8;
     Renderer renderer = Renderer(
         scene, 
@@ -219,7 +219,7 @@ int main() {
         rays_per_pixel, 
         intensity_depth
     );
-    renderer.render("../../images/image_4_td2.png");
+    renderer.render("../../images/image.png");
 
     return 0;
 }

@@ -52,17 +52,17 @@ void Renderer::render(const std::string& filename) {
     #pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
-            Ray ray = camera.get_ray(i, j);
-            Intersection intersection = scene.get_closest_hit(ray);
-            if (intersection.flag) {
-                Vector vec_albedo_average;
-                for (int k = 0; k < nr_rays; k++) {
+            Vector vec_albedo_average = Vector();
+            for (int k = 0; k < nr_rays; k++) {
+                Ray ray = camera.get_ray(i, j);
+                Intersection intersection = scene.get_closest_hit(ray);
+                if (intersection.flag) {
                     Vector vec_albedo = scene.get_intensity(ray, intensity_depth, false);
                     vec_albedo_average = vec_albedo_average + vec_albedo;
                 }
-                vec_albedo_average = (1.0 / (static_cast<double>(nr_rays))) * vec_albedo_average;
-                set_image_pixel_color(i, j, vec_albedo_average);
             }
+            vec_albedo_average = (1.0 / (static_cast<double>(nr_rays))) * vec_albedo_average;
+            set_image_pixel_color(i, j, vec_albedo_average);
 
             int local_count = ++pixel_count;
             if (local_count % 5000 == 0) {
@@ -88,9 +88,9 @@ void Renderer::render(const std::string& filename) {
         }
     }
 
-    display_image(filename);
-
     auto end_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end_time - start_time;
     std::cout << std::endl << "Render loop took " << elapsed.count() << " seconds.\n";
+    
+    display_image(filename);
 }
