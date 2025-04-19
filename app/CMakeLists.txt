@@ -13,6 +13,7 @@ target_link_libraries(
             "LibVector"
             "LibSTB"
             "LibCamera"
+            "LibTriangleMesh"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog
