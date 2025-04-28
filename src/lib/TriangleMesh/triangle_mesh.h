@@ -3,60 +3,71 @@
 
 #include <string>
 #include <cstring>
+#include <climits>
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
 #include <vector>
 #include "vector.h"
 #include "ray.h"
-#include "sphere.h"
+#include "geometry.h"
 
-class TriangleIndices {
-    public:
-        TriangleIndices(
-            int vtxi = -1, 
-            int vtxj = -1, 
-            int vtxk = -1, 
-            int ni = -1, 
-            int nj = -1, 
-            int nk = -1, 
-            int uvi = -1, 
-            int uvj = -1, 
-            int uvk = -1, 
-            int group = -1, 
-            bool added = false
-        ) : 
-        vtxi(vtxi), 
-        vtxj(vtxj), 
-        vtxk(vtxk), 
-        uvi(uvi), 
-        uvj(uvj), 
-        uvk(uvk), 
-        ni(ni), 
-        nj(nj), 
-        nk(nk), 
-        group(group) {
-        };
+#define EPS 1e-6
 
-        int vtxi, vtxj, vtxk; // indices within the vertex coordinates array
-        int uvi, uvj, uvk;  // indices within the uv coordinates array
-        int ni, nj, nk;  // indices within the normals array
-        int group;       // face group
-    };
+class BoundingBox {
+public:
+    Vector Bmin;
+    Vector Bmax;
 
-class TriangleMesh {
-    public:
-        ~TriangleMesh() {}
-        TriangleMesh() {};
-
-        void readOBJ(const char* obj);
-        
-        std::vector<TriangleIndices> indices;
-        std::vector<Vector> vertices;
-        std::vector<Vector> normals;
-        std::vector<Vector> uvs;
-        std::vector<Vector> vertexcolors;   
+    void compute(std::vector<Vector>& verts);
+    bool intersect(Ray& ray, double& t_enter);
 };
 
+class TriangleIndices {
+public:
+    TriangleIndices(
+        int vtxi = -1,
+        int vtxj = -1,
+        int vtxk = -1,
+        int ni = -1,
+        int nj = -1,
+        int nk = -1,
+        int uvi = -1,
+        int uvj = -1,
+        int uvk = -1,
+        int group = -1
+    ) : vtxi(vtxi), vtxj(vtxj), vtxk(vtxk), uvi(uvi), uvj(uvj), uvk(uvk), ni(ni), nj(nj), nk(nk), group(group) {}
+
+    int vtxi, vtxj, vtxk;
+    int uvi, uvj, uvk;
+    int ni, nj, nk;
+    int group;
+};
+
+class TriangleMesh : public Geometry {
+public:
+    explicit TriangleMesh(
+        Vector aux_albedo = Vector(),
+        bool aux_mirror = false,
+        bool aux_transparent = false,
+        bool aux_light_source = false,
+        double aux_refraction_index = 1.0
+    );
+    ~TriangleMesh() = default;
+
+    void readOBJ(const char* obj);
+
+    virtual Intersection intersected_by(Ray& ray) override;
+
+    std::vector<TriangleIndices> indices;
+    std::vector<Vector> vertices;
+    std::vector<Vector> normals;
+    std::vector<Vector> uvs;
+    std::vector<Vector> vertexcolors;
+
+private:
+    BoundingBox bounding_box;
+    bool bounding_box_ready;
+};
 
 #endif // TRIANGLEMESH_H

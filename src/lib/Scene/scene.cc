@@ -8,14 +8,14 @@ namespace {
 
 // Scene class definitions
 Scene::Scene(
-    std::vector<Sphere> aux_l_sph, 
+    std::vector<Geometry*> aux_l_obj, 
     Vector aux_vec_light_source, 
-    Sphere aux_sph_light_source,
+    Sphere* aux_sph_light_source,
     double aux_light_intensity,
     double aux_refraction_index,
     bool aux_light_source_sphere
 ) { 
-    l_sph = aux_l_sph;
+    l_obj = aux_l_obj;
     vec_light_source = aux_vec_light_source;
     sph_light_source = aux_sph_light_source;
     light_intensity = aux_light_intensity;
@@ -23,8 +23,8 @@ Scene::Scene(
     light_source_sphere = aux_light_source_sphere;
 }
 
-void Scene::add_object(const Sphere& sph_extra) {
-    l_sph.push_back(sph_extra);
+void Scene::add_object(Geometry* obj_extra) {
+    l_obj.push_back(obj_extra);
 }
 
 double Scene::get_random_number() {
@@ -44,12 +44,12 @@ Intersection Scene::get_closest_hit(Ray& ray) {
     double closest_hit_distance = INT_MAX * 1.0;
     Intersection closest_hit_intersection = Intersection();
     
-    for (int idx = 0; idx < l_sph.size(); idx++) {
-        Intersection intersection = l_sph[idx].intersected_by(ray);
+    for (int idx = 0; idx < l_obj.size(); idx++) {
+        Intersection intersection = l_obj[idx]->intersected_by(ray);
         if (intersection.flag && intersection.distance < closest_hit_distance) {
             closest_hit_distance = intersection.distance;
             closest_hit_intersection = intersection;
-            closest_hit_intersection.idx_sph = idx;
+            closest_hit_intersection.idx_obj = idx;
         }
     }
 
@@ -77,8 +77,8 @@ Vector Scene::get_shadow_intensity_point_light_source(const Intersection& inters
 }  
 
 Vector Scene::get_shadow_intensity_sphere_light_source(const Intersection& intersection) {
-    Vector vec_center = sph_light_source.get_center();
-    double radius     = sph_light_source.get_radius();
+    Vector vec_center = sph_light_source->get_center();
+    double radius     = sph_light_source->get_radius();
 
     Vector vec_point  = intersection.vec_point;
     Vector vec_albedo = intersection.vec_albedo;
@@ -141,7 +141,7 @@ Ray Scene::get_refracted_ray(Ray& ray, const Intersection& intersection) {
 
     double cosine_unit_normal = dot(vec_unit_direction, vec_normal_surface);
 
-    double sphere_refraction_index = l_sph[intersection.idx_sph].get_refraction_index();
+    double sphere_refraction_index = l_obj[intersection.idx_obj]->get_refraction_index();
     double scene_refraction_index = refraction_index;
 
     double eta_1 = cosine_unit_normal <= 0 ? scene_refraction_index : sphere_refraction_index;
@@ -182,7 +182,7 @@ Ray Scene::get_fresnel_ray(Ray& ray, const Intersection& intersection) {
 
     double cosine_unit_normal = dot(vec_unit_direction, vec_normal_surface);
 
-    double sphere_refraction_index = l_sph[intersection.idx_sph].get_refraction_index();
+    double sphere_refraction_index = l_obj[intersection.idx_obj]->get_refraction_index();
     double scene_refraction_index = refraction_index;
 
     double eta_1 = cosine_unit_normal <= 0 ? scene_refraction_index : sphere_refraction_index;
@@ -243,20 +243,20 @@ Vector Scene::get_intensity(Ray& ray , const int& ray_depth, bool last_bounce_di
     else {
         Intersection first_hit_intersection = get_closest_hit(ray);
         if (first_hit_intersection.flag) {
-            if (l_sph[first_hit_intersection.idx_sph].has_mirror_surface()) {
+            if (l_obj[first_hit_intersection.idx_obj]->has_mirror_surface()) {
                 Ray ray_reflected = get_reflected_ray(ray, first_hit_intersection);
                 return get_intensity(ray_reflected, ray_depth - 1, false);
             }
-            else if (l_sph[first_hit_intersection.idx_sph].has_transparent_surface()){
+            else if (l_obj[first_hit_intersection.idx_obj]->has_transparent_surface()){
                 Ray ray_returned = get_fresnel_ray(ray, first_hit_intersection);
                 return get_intensity(ray_returned, ray_depth - 1, false);
             }
-            else if (light_source_sphere && l_sph[first_hit_intersection.idx_sph].is_light_source()) {
+            else if (light_source_sphere && l_obj[first_hit_intersection.idx_obj]->is_light_source()) {
                 if (last_bounce_diffuse) {
                     return Vector();
                 }
                 else {
-                    double radius = l_sph[first_hit_intersection.idx_sph].get_radius();
+                    double radius = sph_light_source->get_radius();
                     return (Vector(1.0, 1.0, 1.0) * light_intensity) / (4 * M_PI * M_PI * radius * radius);
                 }
             }

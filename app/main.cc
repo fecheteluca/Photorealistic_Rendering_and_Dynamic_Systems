@@ -1,7 +1,12 @@
 #include "renderer.h"
 
+#define SETTING 0 
+// SETTING = 0 renders the cat
+// SETTING = 1 renders the spheres 
+
 int main() {
-    std::vector<Sphere> l_sph(11);
+    std::vector<Geometry*> l_obj;
+    l_obj.reserve(12);
 
     // Center Sphere Configuration
     Vector sph_center_vec_center = Vector(0, 0, 0);
@@ -12,7 +17,7 @@ int main() {
     bool sph_center_light_source = false;
     double sph_center_refraction_index = 1.5;
     bool sph_center_invert_normals = false;
-    Sphere sph_center = Sphere(
+    Sphere* sph_center = new Sphere(
         sph_center_vec_center, 
         sph_center_radius, 
         sph_center_vec_albedo, 
@@ -22,7 +27,9 @@ int main() {
         sph_center_refraction_index,
         sph_center_invert_normals
     );
-    l_sph.push_back(sph_center);
+    if (SETTING == 1) {
+        l_obj.push_back(sph_center);
+    }
 
     // Center Left Sphere Configuration
     Vector sph_center_left_vec_center = Vector(-20, 0, 0);
@@ -33,7 +40,7 @@ int main() {
     bool sph_center_left_light_source = false;
     double sph_center_left_refraction_index = 1.0;
     bool sph_center_left_invert_normals = false;
-    Sphere sph_center_left = Sphere(
+    Sphere* sph_center_left = new Sphere(
         sph_center_left_vec_center, 
         sph_center_left_radius, 
         sph_center_left_vec_albedo, 
@@ -43,7 +50,9 @@ int main() {
         sph_center_left_refraction_index,
         sph_center_left_invert_normals
     );
-    l_sph.push_back(sph_center_left);
+    if (SETTING == 1) {
+        l_obj.push_back(sph_center_left);
+    }
 
     // Center Right Outside Sphere Configuration
     Vector sph_center_right_outside_vec_center = Vector(20, 0, 0);
@@ -54,7 +63,7 @@ int main() {
     bool sph_center_right_outside_light_source = false;
     double sph_center_right_outside_refraction_index = 1.5;
     bool sph_center_right_outside_invert_normals = false;
-    Sphere sph_center_right_outside = Sphere(
+    Sphere* sph_center_right_outside = new Sphere(
         sph_center_right_outside_vec_center, 
         sph_center_right_outside_radius, 
         sph_center_right_outside_vec_albedo, 
@@ -64,7 +73,9 @@ int main() {
         sph_center_right_outside_refraction_index,
         sph_center_right_outside_invert_normals
     );
-    l_sph.push_back(sph_center_right_outside);
+    if (SETTING == 1) {
+        l_obj.push_back(sph_center_right_outside);
+    }
 
     // Center Right Inside Sphere Configuration
     Vector sph_center_right_inside_vec_center = Vector(20, 0, 0);
@@ -75,7 +86,7 @@ int main() {
     bool sph_center_right_inside_light_source = false;
     double sph_center_right_inside_refraction_index = 1.5;
     bool sph_center_right_inside_invert_normals = true;
-    Sphere sph_center_right_inside = Sphere(
+    Sphere* sph_center_right_inside = new Sphere(
         sph_center_right_inside_vec_center, 
         sph_center_right_inside_radius, 
         sph_center_right_inside_vec_albedo, 
@@ -85,73 +96,97 @@ int main() {
         sph_center_right_inside_refraction_index,
         sph_center_right_inside_invert_normals
     );
-    l_sph.push_back(sph_center_right_inside);
+    if (SETTING == 1) {
+        l_obj.push_back(sph_center_right_inside);
+    }
+
+    // Cat configuration
+    Vector cat_vec_albedo = Vector(0.8, 0.8, 0.8);
+    bool cat_mirror = false;
+    bool cat_transparent = false;
+    bool cat_light_source = false;
+    double cat_refraction_index = 1.5;
+    TriangleMesh* cat = new TriangleMesh(
+        cat_vec_albedo,
+        cat_mirror,
+        cat_transparent,
+        cat_light_source,
+        cat_refraction_index
+    );
+    cat->readOBJ("../../objects/cat/cat.obj");
+    for (auto& v : cat->vertices) {
+        v = v * 0.6;
+        v.set_y(v.get_y() - 10.0);
+    }
+    if (SETTING == 0) {
+        l_obj.push_back(cat);
+    }
 
     // Left Wall Sphere Configuration
     Vector sph_leftwall_vec_center = Vector(1000, 0, 0);
     double sph_leftwall_radius     = 940;
     Vector sph_leftwall_vec_albedo = Vector(0.9, 0.2, 0.9);
-    Sphere sph_leftwall = Sphere(
+    Sphere* sph_leftwall = new Sphere(
         sph_leftwall_vec_center, 
         sph_leftwall_radius, 
         sph_leftwall_vec_albedo
     );
-    l_sph.push_back(sph_leftwall);
+    l_obj.push_back(sph_leftwall);
 
     // Right Wall Sphere Configuration
     Vector sph_rightwall_vec_center = Vector(-1000, 0, 0);
     double sph_rightwall_radius     = 940;
     Vector sph_rightwall_vec_albedo = Vector(0.6, 0.5, 0.1);
-    Sphere sph_rightwall = Sphere(
+    Sphere* sph_rightwall = new Sphere(
         sph_rightwall_vec_center, 
         sph_rightwall_radius, 
         sph_rightwall_vec_albedo
     );
-    l_sph.push_back(sph_rightwall);
+    l_obj.push_back(sph_rightwall);
 
     // Up Wall (Ceiling) Sphere Configuration
     Vector sph_upwall_vec_center = Vector(0, 1000, 0);
     double sph_upwall_radius     = 940;
     Vector sph_upwall_vec_albedo = Vector(0.2, 0.5, 0.9);
-    Sphere sph_upwall = Sphere(
+    Sphere* sph_upwall = new Sphere(
         sph_upwall_vec_center, 
         sph_upwall_radius, 
         sph_upwall_vec_albedo
     );
-    l_sph.push_back(sph_upwall);
+    l_obj.push_back(sph_upwall);
 
     // Down Wall (Floor) Sphere Configuration
     Vector sph_downwall_vec_center = Vector(0, -1000, 0);
     double sph_downwall_radius     = 990;
     Vector sph_downwall_vec_albedo = Vector(0.3, 0.4, 0.7);
-    Sphere sph_downwall = Sphere(
+    Sphere* sph_downwall = new Sphere(
         sph_downwall_vec_center, 
         sph_downwall_radius, 
         sph_downwall_vec_albedo
     );
-    l_sph.push_back(sph_downwall);
+    l_obj.push_back(sph_downwall);
 
     // Back Wall Sphere Configuration
     Vector sph_backwall_vec_center = Vector(0, 0, 1000);
     double sph_backwall_radius     = 940;
     Vector sph_backwall_vec_albedo = Vector(0.9, 0.4, 0.3);
-    Sphere sph_backwall = Sphere(
+    Sphere* sph_backwall = new Sphere(
         sph_backwall_vec_center, 
         sph_backwall_radius, 
         sph_backwall_vec_albedo
     );
-    l_sph.push_back(sph_backwall);
+    l_obj.push_back(sph_backwall);
 
     // Front Wall Sphere Configuration
     Vector sph_frontwall_vec_center = Vector(0, 0, -1000);
     double sph_frontwall_radius     = 940;
     Vector sph_frontwall_vec_albedo = Vector(0.4, 0.8, 0.7);
-    Sphere sph_frontwall = Sphere(
+    Sphere* sph_frontwall = new Sphere(
         sph_frontwall_vec_center, 
         sph_frontwall_radius, 
         sph_frontwall_vec_albedo
     );
-    l_sph.push_back(sph_frontwall);
+    l_obj.push_back(sph_frontwall);
 
     // Light Source Sphere Configuration
     Vector sph_light_source_vec_center = Vector(-10, 25, -10);
@@ -162,7 +197,7 @@ int main() {
     bool sph_light_source_light_source = true;
     double sph_light_source_refraction_index = 1.5;
     bool sph_light_source_invert_normals = false;
-    Sphere sph_light_source = Sphere(
+    Sphere* sph_light_source = new Sphere(
         sph_light_source_vec_center, 
         sph_light_source_radius, 
         sph_light_source_vec_albedo, 
@@ -176,7 +211,7 @@ int main() {
     bool light_source_sphere = false;
 
     if (light_source_sphere) {
-        l_sph.push_back(sph_light_source);
+        l_obj.push_back(sph_light_source);
     }
     
     Vector vec_light_source = Vector(-10, 20, 40);
@@ -184,7 +219,7 @@ int main() {
     double scene_refraction_index = 1.0;
 
     Scene scene = Scene(
-        l_sph, 
+        l_obj, 
         vec_light_source, 
         sph_light_source,
         light_intensity, 
@@ -194,8 +229,8 @@ int main() {
 
     Vector vec_camera_center = Vector(0, 0, 55);
     double camera_angle = 60;
-    int camera_width = 1024;
-    int camera_height = 1024;
+    int camera_width = 512;
+    int camera_height = 512;
     double camera_stdev = 1.0;
     double camera_spread = 0.5;
     double camera_focal_dist = 55;
@@ -211,15 +246,15 @@ int main() {
         camera_aperture
     );
 
-    int rays_per_pixel = 1000;
-    int intensity_depth = 8;
+    int rays_per_pixel = 1;
+    int intensity_depth = 5;
     Renderer renderer = Renderer(
         scene, 
         camera, 
         rays_per_pixel, 
         intensity_depth
     );
-    renderer.render("../../images/image_2_td2.png");
+    renderer.render("../../images/image.png");
 
     return 0;
 }

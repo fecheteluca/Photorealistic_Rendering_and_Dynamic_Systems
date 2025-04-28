@@ -12,21 +12,22 @@
 #include "vector.h"
 #include "ray.h"
 #include "sphere.h"
+#include "geometry.h"
 
 #define EPS 0.001
 
 class Scene {
     public:
         explicit Scene(
-            std::vector<Sphere> aux_l_sph = std::vector<Sphere>(), 
+            std::vector<Geometry*> aux_l_sph = std::vector<Geometry*>(), 
             Vector aux_vec_light_source = Vector(), 
-            Sphere sph_light_source = Sphere(),
+            Sphere* sph_light_source = new Sphere(),
             double aux_light_intensity = 0,
             double aux_refraction_index = 1.0,
             bool aux_light_source_sphere = false
         );
 
-        void add_object(const Sphere& sph_extra);
+        void add_object(Geometry* obj_extra);
 
         double get_random_number();
 
@@ -45,9 +46,9 @@ class Scene {
         Vector get_intensity(Ray& ray, const int& ray_depth, bool last_bounce_diffuse);
         
     private:
-        std::vector<Sphere> l_sph;
+        std::vector<Geometry*> l_obj;
         Vector vec_light_source;
-        Sphere sph_light_source;
+        Sphere* sph_light_source;
         double light_intensity;
         double refraction_index;
         bool light_source_sphere;

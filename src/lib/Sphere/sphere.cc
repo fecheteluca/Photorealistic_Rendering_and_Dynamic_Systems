@@ -13,12 +13,13 @@ Sphere::Sphere(
 ) {
     vec_center = aux_vec_center;
     radius = aux_radius;
-    vec_albedo = aux_vec_albedo;
-    mirror = aux_mirror;
-    transparent = aux_transparent;
-    light_source = aux_light_source;
-    refraction_index = aux_refraction_index;
     invert_normals = aux_invert_normals;
+
+    this->set_color(aux_vec_albedo);
+    this->set_mirror(aux_mirror);
+    this->set_transparent(aux_transparent);
+    this->set_light_source(aux_light_source);
+    this->set_refraction_index(aux_refraction_index);
 }
 
 Vector Sphere::get_center() {
@@ -27,26 +28,6 @@ Vector Sphere::get_center() {
 
 double Sphere::get_radius() {
     return radius;
-}
-
-Vector Sphere::get_color() {
-    return vec_albedo;
-}
-
-bool Sphere::has_mirror_surface() {
-    return mirror;
-}
-
-bool Sphere::has_transparent_surface() {
-    return transparent;
-}
-
-bool Sphere::is_light_source() {
-    return light_source;
-}
-
-double Sphere::get_refraction_index() {
-    return refraction_index;
 }
 
 Intersection Sphere::intersected_by(Ray& ray) {
@@ -70,7 +51,7 @@ Intersection Sphere::intersected_by(Ray& ray) {
             intersection.vec_point = vec_origin + first_intersection * vec_unit_direction;
             intersection.vec_normal = !invert_normals ? intersection.vec_point - vec_center : vec_center - intersection.vec_point;
             intersection.vec_normal.normalize();
-            intersection.vec_albedo = vec_albedo;
+            intersection.vec_albedo = this->get_color();
         }
         else if (second_intersection >= 0 && first_intersection < 0) {
             intersection.flag = true;
@@ -78,7 +59,7 @@ Intersection Sphere::intersected_by(Ray& ray) {
             intersection.vec_point = vec_origin + second_intersection * vec_unit_direction;
             intersection.vec_normal = !invert_normals ? intersection.vec_point - vec_center : vec_center - intersection.vec_point;
             intersection.vec_normal.normalize();
-            intersection.vec_albedo = vec_albedo;
+            intersection.vec_albedo = this->get_color();
         }
     }
 

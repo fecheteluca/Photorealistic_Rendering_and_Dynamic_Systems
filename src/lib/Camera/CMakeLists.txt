@@ -14,6 +14,7 @@ target_link_libraries(
             "LibVector"
             "LibRay"
             "LibSTB" 
+            "LibGeometry"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog

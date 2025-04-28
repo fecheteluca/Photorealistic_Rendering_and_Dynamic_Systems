@@ -14,6 +14,7 @@ target_link_libraries(
             "LibSTB"
             "LibCamera"
             "LibTriangleMesh"
+            "LibGeometry"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog

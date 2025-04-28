@@ -12,6 +12,7 @@
 #include "sphere.h"
 #include "scene.h"
 #include "camera.h"
+#include "triangle_mesh.h"
 
 class Renderer {
     public:

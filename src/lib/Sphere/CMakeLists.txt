@@ -8,6 +8,7 @@ target_link_libraries(
     "LibSphere"
     PRIVATE "LibVector"
             "LibRay"
+            "LibGeometry"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog
