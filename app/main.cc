@@ -106,17 +106,25 @@ int main() {
     bool cat_transparent = false;
     bool cat_light_source = false;
     double cat_refraction_index = 1.5;
+    std::string cat_optimization = "bvh";
     TriangleMesh* cat = new TriangleMesh(
         cat_vec_albedo,
         cat_mirror,
         cat_transparent,
         cat_light_source,
-        cat_refraction_index
+        cat_refraction_index,
+        cat_optimization
     );
     cat->readOBJ("../../objects/cat/cat.obj");
     for (auto& v : cat->vertices) {
         v = v * 0.6;
         v.set_y(v.get_y() - 10.0);
+    }
+    if (cat_optimization == "bvh") {
+        cat->build_BVH();
+    }
+    else if (cat_optimization == "bbox") {
+        cat->build_bbox();
     }
     if (SETTING == 0) {
         l_obj.push_back(cat);
@@ -234,7 +242,7 @@ int main() {
     double camera_stdev = 1.0;
     double camera_spread = 0.5;
     double camera_focal_dist = 55;
-    double camera_aperture = 0.0;
+    double camera_aperture = 1.0;
     Camera camera = Camera(
         vec_camera_center, 
         camera_angle, 
@@ -246,7 +254,7 @@ int main() {
         camera_aperture
     );
 
-    int rays_per_pixel = 1;
+    int rays_per_pixel = 100;
     int intensity_depth = 5;
     Renderer renderer = Renderer(
         scene, 

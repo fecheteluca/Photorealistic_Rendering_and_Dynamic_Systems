@@ -1,18 +1,47 @@
 #include "triangle_mesh.h"
 
 // BoundingBox class methods
-void BoundingBox::compute(std::vector<Vector>& vertices) {
-    if (vertices.empty()) return;
-    Bmin = vertices[0];
-    Bmax = vertices[0];
-    for (auto& v : vertices) {
-        Bmin.set_x(std::min(Bmin.get_x(), v.get_x()));
-        Bmin.set_y(std::min(Bmin.get_y(), v.get_y()));
-        Bmin.set_z(std::min(Bmin.get_z(), v.get_z()));
+void BoundingBox::compute(
+    std::vector<Vector>::iterator& start, 
+    std::vector<Vector>::iterator& end
+) {
+    if (start == end) return;
+    Bmin = Vector(1.0 * INT_MAX, 1.0 * INT_MAX, 1.0 * INT_MAX);
+    Bmax = Vector(1.0 * INT_MIN, 1.0 * INT_MIN, 1.0 * INT_MIN);
+    for (std::vector<Vector>::iterator it = start; it != end; ++it) {
+        Bmin.set_x(std::min(Bmin.get_x(), (*it).get_x()));
+        Bmin.set_y(std::min(Bmin.get_y(), (*it).get_y()));
+        Bmin.set_z(std::min(Bmin.get_z(), (*it).get_z()));
 
-        Bmax.set_x(std::max(Bmax.get_x(), v.get_x()));
-        Bmax.set_y(std::max(Bmax.get_y(), v.get_y()));
-        Bmax.set_z(std::max(Bmax.get_z(), v.get_z()));
+        Bmax.set_x(std::max(Bmax.get_x(), (*it).get_x()));
+        Bmax.set_y(std::max(Bmax.get_y(), (*it).get_y()));
+        Bmax.set_z(std::max(Bmax.get_z(), (*it).get_z()));
+    }
+}
+
+void BoundingBox::compute(
+    std::vector<TriangleIndices>::iterator& start,
+    std::vector<TriangleIndices>::iterator& end,
+    const std::vector<Vector>& vertices
+) { 
+    if (start == end) return;
+    Bmin = Vector(1.0 * INT_MAX, 1.0 * INT_MAX, 1.0 * INT_MAX);
+    Bmax = Vector(1.0 * INT_MIN, 1.0 * INT_MIN, 1.0 * INT_MIN);
+    for (std::vector<TriangleIndices>::iterator it = start; it != end; ++it) {
+        Vector triangle[3] = {
+            vertices[(*it).vtxi],
+            vertices[(*it).vtxj],
+            vertices[(*it).vtxk]
+        };
+        for (int k = 0; k < 3; ++k) {
+            Bmin.set_x(std::min(Bmin.get_x(), triangle[k].get_x()));
+            Bmin.set_y(std::min(Bmin.get_y(), triangle[k].get_y()));
+            Bmin.set_z(std::min(Bmin.get_z(), triangle[k].get_z()));
+    
+            Bmax.set_x(std::max(Bmax.get_x(), triangle[k].get_x()));
+            Bmax.set_y(std::max(Bmax.get_y(), triangle[k].get_y()));
+            Bmax.set_z(std::max(Bmax.get_z(), triangle[k].get_z()));
+        }
     }
 }
 
@@ -50,7 +79,8 @@ TriangleMesh::TriangleMesh(
     bool aux_mirror,
     bool aux_transparent,
     bool aux_light_source,
-    double aux_refraction_index
+    double aux_refraction_index,
+    std::string aux_optimization
 ) {
     this->set_color(aux_vec_albedo);
     this->set_mirror(aux_mirror);
@@ -59,6 +89,10 @@ TriangleMesh::TriangleMesh(
     this->set_refraction_index(aux_refraction_index);
 
     bounding_box_ready = false;
+    bvh_ready = false;
+    bvh = nullptr;
+
+    optimization = aux_optimization;
 }
 
 void TriangleMesh::readOBJ(const char* obj) {
@@ -231,63 +265,159 @@ void TriangleMesh::readOBJ(const char* obj) {
 
     }
     fclose(f);
+}
 
+void TriangleMesh::compute_intersection(Ray& ray, const TriangleIndices& index, Intersection& intersection) {
+    const Vector& A = vertices[index.vtxi];
+    const Vector& B = vertices[index.vtxj];
+    const Vector& C = vertices[index.vtxk];
+
+    Vector vec_origin = ray.get_origin();
+    Vector vec_unit_direction  = ray.get_unit_direction();
+
+    Vector e1 = B - A;
+    Vector e2 = C - A;
+
+    double determinant = dot(vec_unit_direction, cross(e1, e2));
+
+    double beta = dot(e2, cross(A - vec_origin, vec_unit_direction)) / determinant;
+    double gamma = (-1) * dot(e1, cross(A - vec_origin, vec_unit_direction)) / determinant;
+    double alpha = 1 - beta - gamma;
+    double distance = dot(A - vec_origin, cross(e1, e2)) / determinant; 
+
+    Vector vec_normal_A = normals[index.ni];
+    Vector vec_normal_B = normals[index.nj];
+    Vector vec_normal_C = normals[index.nk];
+    Vector vec_normal = alpha * vec_normal_A + beta * vec_normal_B + gamma * vec_normal_C;
+    vec_normal.normalize();
+
+    bool cond_alpha    = (alpha >= 0) && (alpha <= 1);
+    bool cond_beta     = (beta >= 0) && (beta <= 1);
+    bool cond_gamma    = (gamma >= 0) && (gamma <= 1);
+    bool cond_distance = (distance > EPS) && (distance < intersection.distance);
+
+    if (cond_alpha && cond_beta && cond_gamma && cond_distance) {
+        intersection.flag     = true;
+        intersection.distance = distance;
+        intersection.vec_point = vec_origin + vec_unit_direction * distance;
+        intersection.vec_normal = vec_normal;
+        intersection.vec_albedo = this->get_color();
+    }
+}
+
+BVHNode* TriangleMesh::build_node(
+    std::vector<TriangleIndices>::iterator start,
+    std::vector<TriangleIndices>::iterator end
+) {
+    BVHNode* node = new BVHNode();
+
+    node->bbox.compute(start, end, vertices);
+
+    node->start_triangle = start;
+    node->end_triangle   = end;
+
+    Vector diag = node->bbox.Bmax - node->bbox.Bmin;
+    Vector middle_diag = node->bbox.Bmin + diag * 0.5;
+
+    int longest_axis = 0;
+    if (diag.get_y() > diag.get_x()) longest_axis = 1;
+    if (diag.get_z() > std::max(diag.get_x(), diag.get_y())) longest_axis = 2;
+
+    auto pivot = start;
+    for (std::vector<TriangleIndices>::iterator it = start; it != end; ++it) {
+        Vector A = vertices[(*it).vtxi];
+        Vector B = vertices[(*it).vtxj];
+        Vector C = vertices[(*it).vtxk];
+        Vector barycenter = (A + B + C) * (1.0 / 3.0);
+        if (barycenter[longest_axis] < middle_diag[longest_axis]) {
+            std::swap(*it, *pivot);
+            ++pivot;
+        }
+    }
+
+    if (pivot == start || pivot == end || std::distance(start, end) < 5) {
+        node->left_bbox  = nullptr;
+        node->right_bbox  = nullptr;
+        return node;
+    }
+
+    node->left_bbox  = build_node(start, pivot);
+    node->right_bbox  = build_node(pivot, end);
+    return node;
+}
+
+void TriangleMesh::traverse_BVH(Ray& ray, BVHNode* node, Intersection& intersection) {
+    double t_enter;
+    if (!node || !node->bbox.intersect(ray, t_enter)) return;
+
+    std::list<BVHNode*> nodes_to_visit;
+    nodes_to_visit.push_front(node);
+
+    double best_inter_distance = 1.0 * INT_MAX;
+
+    while (!nodes_to_visit.empty()) {
+        BVHNode* current_node = nodes_to_visit.back();
+        nodes_to_visit.pop_back();
+        double inter_distance = -1;
+
+        if (current_node ->left_bbox) {
+            if (current_node->left_bbox->bbox.intersect(ray, inter_distance)) {
+                if (inter_distance < best_inter_distance) {
+                    nodes_to_visit.push_back(current_node->left_bbox);
+                }
+            }
+
+            if (current_node->right_bbox->bbox.intersect(ray, inter_distance)) {
+                if (inter_distance < best_inter_distance) {
+                    nodes_to_visit.push_back(current_node->right_bbox);
+                }
+            }
+        }
+        else {
+            for (auto it = current_node->start_triangle; it != current_node->end_triangle; ++it) {
+                compute_intersection(ray, *it, intersection);
+            }
+        }
+    }
+}
+
+void TriangleMesh::build_BVH() {
+    bvh = new BVHTree();
+    bvh->root = build_node(indices.begin(), indices.end());
+    bvh_ready = true;
+}
+
+void TriangleMesh::build_bbox() {
+    std::vector<Vector>::iterator start = vertices.begin();
+    std::vector<Vector>::iterator end = vertices.end();
+    bounding_box.compute(start, end);
+    bounding_box_ready = true;
 }
 
 Intersection TriangleMesh::intersected_by(Ray& ray) {
     Intersection intersection = Intersection();
 
-    if (!bounding_box_ready) {
-        bounding_box.compute(vertices);
-        bounding_box_ready = true;
-    }
-    
-    double t_box;
-    if (!bounding_box.intersect(ray, t_box)) {
-        return intersection;
-    }
-
     intersection.flag = false;
     intersection.distance = 1.0 * INT_MAX;
 
-    Vector vec_origin = ray.get_origin();
-    Vector vec_unit_direction  = ray.get_unit_direction();
-
-    for (size_t i = 0; i < indices.size(); ++i) {
-        const auto& tri = indices[i];
-        const Vector& A = vertices[tri.vtxi];
-        const Vector& B = vertices[tri.vtxj];
-        const Vector& C = vertices[tri.vtxk];
-
-        Vector e1 = B - A;
-        Vector e2 = C - A;
-
-        double determinant = dot(vec_unit_direction, cross(e1, e2));
-
-        double beta = dot(e2, cross(A - vec_origin, vec_unit_direction)) / determinant;
-        double gamma = (-1) * dot(e1, cross(A - vec_origin, vec_unit_direction)) / determinant;
-        double alpha = 1 - beta - gamma;
-        double distance = dot(A - vec_origin, cross(e1, e2)) / determinant; 
-
-        Vector vec_normal_A = normals[tri.ni];
-        Vector vec_normal_B = normals[tri.nj];
-        Vector vec_normal_C = normals[tri.nk];
-        Vector vec_normal = alpha * vec_normal_A + beta * vec_normal_B + gamma * vec_normal_C;
-        vec_normal.normalize();
-
-        bool cond_alpha    = (alpha >= 0) && (alpha <= 1);
-        bool cond_beta     = (beta >= 0) && (beta <= 1);
-        bool cond_gamma    = (gamma >= 0) && (gamma <= 1);
-        bool cond_distance = (distance > EPS) && (distance < intersection.distance);
-
-        if (cond_alpha && cond_beta && cond_gamma && cond_distance) {
-            intersection.flag     = true;
-            intersection.distance = distance;
-            intersection.vec_point = vec_origin + vec_unit_direction * distance;
-            intersection.vec_normal = vec_normal;
-            intersection.vec_albedo = this->get_color();
-        };
+    if (optimization == "bvh" && bvh_ready) {
+        traverse_BVH(ray, bvh->root, intersection);
     }
-    
+    else if (optimization == "bbox" || (optimization == "bvh" && !bvh_ready)) {
+        double t_box;
+        if (!bounding_box.intersect(ray, t_box)) {
+            return intersection;
+        }
+
+        for (size_t i = 0; i < indices.size(); ++i) {
+            compute_intersection(ray, indices[i], intersection);
+        }
+    }
+    else if (optimization == "none" || (optimization == "bbox" && !bounding_box_ready)) {
+        for (size_t i = 0; i < indices.size(); ++i) {
+            compute_intersection(ray, indices[i], intersection);
+        }
+    }
+
     return intersection;
 }
