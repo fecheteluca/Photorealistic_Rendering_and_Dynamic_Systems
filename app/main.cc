@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-#define SETTING 1
+#define SETTING 0
 // SETTING = 0 renders the cat
 // SETTING = 1 renders the spheres 
 
