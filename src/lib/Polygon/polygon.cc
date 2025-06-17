@@ -11,7 +11,7 @@ PolygonMoments compute_moments(const Polygon& polygon) {
     double centroid_x = 0.0;
     double centroid_y = 0.0;
     
-    for (int i = 0; i < polygon.vertices.size(); ++i) {
+    for (int i = 0; i < polygon.vertices.size(); i++) {
         const Vector& current_point = polygon.vertices[i];
         const Vector& next_point    = polygon.vertices[(i + 1) % polygon.vertices.size()];
         double d = current_point[0] * next_point[1] - next_point[0] * current_point[1];  
