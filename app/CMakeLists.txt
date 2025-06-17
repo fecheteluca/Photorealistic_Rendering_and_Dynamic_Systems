@@ -15,6 +15,10 @@ target_link_libraries(
             "LibCamera"
             "LibTriangleMesh"
             "LibGeometry"
+            "LibPolygon"
+            "LibLBFGS"
+            "LibOT"
+            "LibPS"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog

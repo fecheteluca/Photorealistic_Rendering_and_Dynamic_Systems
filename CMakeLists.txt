@@ -158,6 +158,18 @@ install(
     RUNTIME DESTINATION bin)
 
 install(
-    TARGETS "LibVector" "LibSphere" "LibScene" "LibRay" "LibRenderer" "LibSTB" "LibCamera" "LibTriangleMesh" "LibGeometry"
+    TARGETS "LibVector" 
+            "LibSphere" 
+            "LibScene" 
+            "LibRay" 
+            "LibRenderer" 
+            "LibSTB" 
+            "LibCamera" 
+            "LibTriangleMesh" 
+            "LibGeometry" 
+            "LibPolygon" 
+            "LibLBFGS"
+            "LibOT"
+            "LibPS"
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib)

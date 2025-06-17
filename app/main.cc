@@ -1,10 +1,12 @@
 #include "renderer.h"
 
+#define PROJECT 2
+
 #define SETTING 0
 // SETTING = 0 renders the cat
 // SETTING = 1 renders the spheres 
 
-int main() {
+void first_project() {
     std::vector<Geometry*> l_obj;
     l_obj.reserve(12);
 
@@ -263,6 +265,22 @@ int main() {
         intensity_depth
     );
     renderer.render("../../images/image.png");
+}
 
+void second_project() {
+    test_polygon_clipping();
+    test_and_visualize_voronoi();
+    run_and_visualize_power_diagram();
+    run_and_optimize_power_diagram();
+    run_and_visualize_particle_simulation();
+}
+
+int main() {
+    if (PROJECT == 1) {
+        first_project();
+    }
+    else if (PROJECT == 2) {
+        second_project();
+    }
     return 0;
 }

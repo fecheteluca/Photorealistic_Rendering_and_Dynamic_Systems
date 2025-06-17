@@ -17,6 +17,10 @@ target_link_libraries(
             "LibSTB"
             "LibTriangleMesh"
             "LibGeometry"
+            "LibPolygon"
+            "LibLBFGS"
+            "LibOT"
+            "LibPS"
             nlohmann_json::nlohmann_json
             fmt::fmt
             spdlog::spdlog
