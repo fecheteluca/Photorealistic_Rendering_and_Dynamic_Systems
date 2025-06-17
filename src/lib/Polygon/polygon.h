@@ -28,7 +28,7 @@ std::vector<Polygon> voronoi_ple(const std::vector<Vector> &sites);
 
 std::vector<Polygon> weighted_voronoi_ple(const std::vector<Vector> &sites, const std::vector<double> &weights);
 
-// Helper: Clip a polygon by a disk centered at pos, radius r
+// Helper: Clip a polygon by a disk centered at disk_center of radius disk_radius
 Polygon clip_by_disk(const Polygon& polygon, const Vector& disk_center, double disk_radius);
 
 #endif // POLYGON_H

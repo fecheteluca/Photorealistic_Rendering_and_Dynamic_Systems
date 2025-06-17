@@ -34,7 +34,7 @@ ParticleSimulation::ParticleSimulation(int N_liquid_, int N_air_, double dt_, do
 
     desired_fluid_volume = M_PI * radius * radius;
 
-    weights.resize(N_liquid + 1, 0.5);
+    weights.resize(N_liquid + 1, 1.0);
     masses.resize(N_liquid, 2.0);
 }
 
@@ -42,7 +42,7 @@ void ParticleSimulation::Gallouet_Merigot_step() {
     // Optimizing the weights for each Gallouet Merigot step
     lbfgs_parameter_t param;
     lbfgs_parameter_init(&param);
-    param.max_iterations    = 500;
+    param.max_iterations    = 10;
     param.epsilon           = 1e-6;
     param.past              = 3;
     param.delta             = 1e-6;
@@ -53,13 +53,13 @@ void ParticleSimulation::Gallouet_Merigot_step() {
     param.linesearch        = LBFGS_LINESEARCH_BACKTRACKING;
 
     std::vector<lbfgsfloatval_t> x(weights.begin(), weights.end());
-    lbfgsfloatval_t final_F;
+    lbfgsfloatval_t final_F = 0.0;
     int ret = lbfgs(
         N_liquid + 1, 
         x.data(), 
         &final_F,
         evaluate_partial,
-        lbfgs_progress,
+        nullptr,
         this,
         &param
     );

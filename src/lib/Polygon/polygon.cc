@@ -10,8 +10,6 @@ PolygonMoments compute_moments(const Polygon& polygon) {
     double area = 0.0;
     double centroid_x = 0.0;
     double centroid_y = 0.0;
-    double integral_x_sq = 0.0;
-    double integral_y_sq = 0.0;
     
     for (int i = 0; i < polygon.vertices.size(); ++i) {
         const Vector& current_point = polygon.vertices[i];
