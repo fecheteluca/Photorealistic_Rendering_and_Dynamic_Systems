@@ -1,4 +1,4 @@
-## Ray Tracer and Free Surface 2D Fluid Simulator (CSC_3S006_EP - Computer Graphics Project 1/2) - Luca-Andrei Fechete
+## Ray Tracer and Free Surface 2D Fluid Simulator 
 
 This is the Ray Tracer and the Free Surface 2D Fluid Simulator projects for the CSC_3S006_EP - Computer Graphics course taken at Ecole Polytechnique, Paris.
 
